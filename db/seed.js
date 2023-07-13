@@ -6,7 +6,7 @@ async function dropTables() {
   console.log("Dropping tables");
   try {
     await client.query(`
-      DROP TABLE IF EXISTS cart;
+      DROP TABLE IF EXISTS orders_products;
       DROP TABLE IF EXISTS orders;
       DROP TABLE IF EXISTS products;
       DROP TABLE IF EXISTS users;
@@ -24,41 +24,44 @@ async function createTables() {
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         description TEXT NOT NULL,
-        imageUrl TEXT,
+        image_url TEXT,
         price INTEGER,
-        stockQty INTEGER,
+        stock_qty INTEGER,
         category TEXT
       )
     `);
-
+    console.log("Products Table Created...");
     await client.query(`
       CREATE TABLE users (
         id SERIAL PRIMARY KEY,
         username VARCHAR(255) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
         adress TEXT,
-        isAdmin BOOLEAN DEFAULT false
+        is_admin BOOLEAN DEFAULT false
       )
     `);
+    console.log("Users Table Created...");
 
     await client.query(`
     CREATE TABLE orders(
       id SERIAL PRIMARY KEY,
-      userID INTEGER REFERENCES users(id),
+      user_id INTEGER REFERENCES users(id),
       total_price INTEGER,
-      isCart BOOLEAN DEFAULT false 
+      is_cart BOOLEAN DEFAULT false 
     )
     `);
+    console.log("Orders Table created...");
 
     await client.query(`
-    CREATE TABLE orders_products(
+    CREATE TABLE orders_products (
         id SERIAL PRIMARY KEY,
-        "productId" INTEGER REFERENCES products(id),
-        "orderId" INTEGER REFERENCES orders(id),
+        product_id INTEGER REFERENCES products(id),
+        order_id INTEGER REFERENCES orders(id),
         qty INTEGER,
-        price,
-        UNIQUE("productId", "orderId")
+        UNIQUE(product_id, order_id)
+        )
       `);
+    console.log("orders_products table created");
   } catch (error) {
     console.log(error);
   }
@@ -100,7 +103,7 @@ async function rebuildDb() {
     await dropTables();
     await createTables();
     await populateTables();
-    console.log("success:");
+    console.log("success! 🌱");
   } catch (error) {
     console.error(error);
   } finally {

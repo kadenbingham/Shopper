@@ -3,16 +3,17 @@ const client = require("../client");
 async function getAllCartItems() {
   const { rows } = await client.query(`
     SELECT *
-    FROM order_products
+    FROM orders_products
     `);
   return rows;
 }
+
 async function createCartByUserId(userId) {
   const {
     rows: [cart],
   } = await client.query(
     `
-            INSERT INTO orders("userId")
+            INSERT INTO orders(user_id)
                     VALUES($1)
                     RETURNING * 
             `,
@@ -22,18 +23,17 @@ async function createCartByUserId(userId) {
 }
 
 async function deleteCartItem({ productId, orderId }) {
-  console.log("before query");
   const {
     rows: [op],
   } = await client.query(
     `
-          DELETE FROM order_products as op
-              WHERE op."productId"=$1 and op."orderId"=$2
+              DELETE FROM orders_products as op
+              WHERE op.product_id=$1 and op.order_id=$2
               RETURNING *
       `,
     [productId, orderId]
   );
-  console.log("order prod", op);
+
   return op;
 }
 
@@ -43,7 +43,7 @@ async function createCartItem({ price, product_id, orderID, quantity }) {
       rows: [order_product],
     } = await client.query(
       `
-        INSERT INTO order_products (orderID, product_id, quantity, price)
+        INSERT INTO orders_products (order_id, product_id, qty, price)
         VALUES ($1, $2, $3, $4)
         RETURNING *;
         `,
@@ -56,29 +56,25 @@ async function createCartItem({ price, product_id, orderID, quantity }) {
 }
 
 async function editCartItem(orderID, product_id, quantity) {
-  try {
-    const {
-      rows: [order_product],
-    } = await client.query(
-      `
-      UPDATE order_products
+  const {
+    rows: [order_product],
+  } = await client.query(
+    `
+      UPDATE orders_products
       SET quantity = $1
       WHERE orderID = $2 AND product_id = $3
       RETURNING *;
       `,
-      [quantity, orderID, product_id]
-    );
-    return order_product;
-  } catch (error) {
-    throw error;
-  }
+    [quantity, orderID, product_id]
+  );
+  return order_product;
 }
 async function addToCart({ productId, orderId, qty = 1 }) {
   const {
     rows: [order_product],
   } = await client.query(
     `
-          INSERT INTO order_products("productId", "orderId", qty)
+          INSERT INTO orders_products(product_id, order_id, qty)
               VALUES($1, $2, $3)
               RETURNING * 
           `,

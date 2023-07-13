@@ -3,5 +3,5 @@ module.exports = {
   Product: require("./products"),
   Order: require("./orders"),
   Order_Product: require("./order_products"),
-  Cart: require("./require"),
+  Cart: require("./cart"),
 };

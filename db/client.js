@@ -11,6 +11,4 @@ const client = new Client({
       : undefined,
 });
 
-client.connect();
-
 module.exports = client;

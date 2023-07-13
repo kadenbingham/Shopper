@@ -4,15 +4,12 @@ const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const { authRequired } = require("./routes/utility");
+// const { authRequired } = require("./routes/utility");
 const client = require("./db/client");
-client.connect();
-const PORT = process.env.PORT || 3000;
-const server = express();
 
-server.listen(PORT, () => {
-  console.log(`Server listening on PORT ${PORT}`);
-});
+client.connect();
+
+const server = express();
 
 server.use(express.json());
 server.use(morgan("dev"));

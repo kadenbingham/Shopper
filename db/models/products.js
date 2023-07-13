@@ -49,17 +49,17 @@ async function deleteProduct(productId) {
   }
 }
 
-async function createProduct({ name, description, price, stockQty }) {
+async function createProduct({ name, description, price, stock_qty }) {
   try {
     const {
       rows: [product],
     } = await client.query(
       `
-        INSERT INTO products(name, description, price, stockQty)
+        INSERT INTO products(name, description, price, stock_qty)
         VALUES ($1, $2, $3, $4)
         RETURNING *;
         `,
-      [name, description, price, stockQty]
+      [name, description, price, stock_qty]
     );
     return product;
   } catch (error) {
@@ -68,14 +68,13 @@ async function createProduct({ name, description, price, stockQty }) {
 }
 
 async function updateProduct(
-  productId,
-  { name, description, image, price, stockQty, category }
+  product_id,
+  { name, description, image, price, stock_qty, category }
 ) {
-  try {
-    const {
-      rows: [product],
-    } = await client.query(
-      `
+  const {
+    rows: [product],
+  } = await client.query(
+    `
         UPDATE products
         SET name = $1,
             description = $2,
@@ -86,17 +85,14 @@ async function updateProduct(
         WHERE id = $7
         RETURNING *;
       `,
-      [name, description, image, price, stockQty, category, productId]
-    );
+    [name, description, image, price, stock_qty, category, product_id]
+  );
 
-    if (!product) {
-      return null;
-    }
-
-    return product;
-  } catch (error) {
-    throw error;
+  if (!product) {
+    return null;
   }
+
+  return product;
 }
 
 module.exports = {
