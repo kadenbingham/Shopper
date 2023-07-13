@@ -1,11 +1,6 @@
-const rebuildDb = require("./rebuildDb");
 const client = require("./client");
-const { createUser } = require("./adapters/users");
-const { createProduct } = require("./adapters/products");
-const { createOrders } = require("./adapters/orders");
-const { createCartItem } = require("./adapters/cart");
-
-const { users, products, orders, cartItems } = require("./seedData");
+const { User, Product, Order_Product, Order } = require("./models");
+const { users, products, order_products } = require("./seedData");
 
 async function dropTables() {
   console.log("Dropping tables");
@@ -51,19 +46,18 @@ async function createTables() {
       id SERIAL PRIMARY KEY,
       userID INTEGER REFERENCES users(id),
       total_price INTEGER,
-      status BOOLEAN DEFAULT false 
+      isCart BOOLEAN DEFAULT false 
     )
     `);
 
     await client.query(`
-        CREATE TABLE cartItems (
-          id SERIAL PRIMARY KEY,
-          orderID INTEGER REFERENCES orders(id), 
-          product_id INTEGER REFERENCES products(id),
-          quantity INTEGER,
-          price INTEGER,
-          UNIQUE("productId", "orderId")
-        )
+    CREATE TABLE orders_products(
+        id SERIAL PRIMARY KEY,
+        "productId" INTEGER REFERENCES products(id),
+        "orderId" INTEGER REFERENCES orders(id),
+        qty INTEGER,
+        price,
+        UNIQUE("productId", "orderId")
       `);
   } catch (error) {
     console.log(error);
@@ -73,33 +67,28 @@ async function createTables() {
 async function populateTables() {
   console.log("Populating tables");
   try {
-    console.log("users");
-    for (const user of users) {
-      console.log("Users:", users);
-      await createUser(user);
-    }
+    const createdUsers = await Promise.all(users.map(User.createUser));
     console.log("users created!");
 
     console.log("products");
-    for (const product of products) {
-      console.log("Product:", product);
-      await createProduct(product);
-    }
+    const createdProduct = await Promise.all(
+      products.map(Product.createProduct)
+    );
     console.log("products created!");
 
-    console.log("orders");
-    for (const order of orders) {
-      console.log("Order:", order);
-      await createOrders(order);
-    }
-    console.log("orders created!");
-
     console.log("cart items");
-    for (const cartItem of cartItems) {
-      console.log("Cart Item:", cartItem);
-      await createCartItem(cartItem);
-    }
+    const createdCarts = await Promise.all(
+      createdUsers.map((user) => {
+        return Order.createCartByUserId(user.id);
+      })
+    );
     console.log("cart items created!");
+
+    console.log("orders");
+    const createdOrderProducts = await Promise.all(
+      order_products.map(Order_Product.addToCart)
+    );
+    console.log("orders created!");
   } catch (error) {
     console.error(error);
   }
@@ -111,6 +100,7 @@ async function rebuildDb() {
     await dropTables();
     await createTables();
     await populateTables();
+    console.log("success:");
   } catch (error) {
     console.error(error);
   } finally {
@@ -118,4 +108,4 @@ async function rebuildDb() {
   }
 }
 
-rebuildDb();
+rebuildDb().then(() => client.end());

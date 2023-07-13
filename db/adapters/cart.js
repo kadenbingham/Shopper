@@ -62,10 +62,3 @@ async function editCartItem(orderID, product_id, quantity) {
     throw error;
   }
 }
-
-module.exports = {
-  createCartItem,
-  deleteCartItem,
-  editCartItem,
-  getAllCartItems,
-};

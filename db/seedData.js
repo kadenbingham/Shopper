@@ -51,7 +51,7 @@ const users = [
     isAdmin: true,
   },
 ];
-const cartItems = [
+const order_products = [
   {
     id: 1,
     orderID: 1001,
@@ -88,5 +88,4 @@ const cartItems = [
     price: 20,
   },
 ];
-
-module.exports = { users, products, cartItems, orders };
+module.exports = { users, products, cartItems, orders, order_products };

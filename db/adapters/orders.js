@@ -1,5 +1,19 @@
 const client = require("../client");
 
+async function createCartByUserId(userId) {
+  const {
+    rows: [cart],
+  } = await client.query(
+    `
+          INSERT INTO orders("userId")
+                  VALUES($1)
+                  RETURNING * 
+          `,
+    [userId]
+  );
+  return cart;
+}
+
 async function getOrderById(orderID) {
   try {
     const {
@@ -101,4 +115,5 @@ module.exports = {
   createOrders,
   getAllOrders,
   getOrderById,
+  createCartByUserId,
 };
