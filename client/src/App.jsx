@@ -1,33 +1,34 @@
-import { useEffect, useState } from "react";
-import "./App.css";
+import React from "react";
+import Register from "./components/Register";
+import useAuth from "./hooks/useAuth.js";
+import { logOut } from "./api/auth";
+import Products from "./components/Products";
+import Cart from "./components/Cart";
+import Login from "./components/Login";
 
 function App() {
-  const [healthMsg, setHealthMsg] = useState(null);
-  const [err, setErr] = useState(null);
+  const { user, setLoggedIn } = useAuth();
 
-  useEffect(() => {
-    async function checkHealth() {
-      try {
-        const response = await fetch("/api/health");
-        if (!response.ok) {
-          throw {
-            message: "Api is Down 😭",
-          };
-        }
-        const { message } = await response.json();
-        setHealthMsg(message);
-      } catch (error) {
-        setErr(error.message);
-      }
-    }
-    checkHealth();
-  }, []);
+  const handleLogout = async () => {
+    await logOut();
+    setLoggedIn(false);
+  };
 
   return (
-    <div>
-      <h1>Welcome to Grace Shopper</h1>
-      {healthMsg && <p>{healthMsg}</p>}
-      {err && <p>{err}</p>}
+    <div style={{ textAlign: "center" }}>
+      <h3>Hello, {user.username || "Guest"}!</h3>
+
+      {user.id ? (
+        <button onClick={handleLogout}>Logout</button>
+      ) : (
+        <>
+          <Register />
+          <Login />
+        </>
+      )}
+
+      <Products />
+      <Cart />
     </div>
   );
 }
