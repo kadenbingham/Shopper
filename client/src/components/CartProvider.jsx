@@ -8,7 +8,7 @@ const CartProvider = ({ children }) => {
   const { user, loggedIn } = useAuth();
   const { products } = useProducts();
 
-  const [cart, setCart] = useState({ items: [], username: user.username });
+  const [cart, setCart] = useState({ items: [], username: user?.username });
 
   useEffect(() => {
     const getCart = async () => {
@@ -18,7 +18,7 @@ const CartProvider = ({ children }) => {
       } else {
         if (localStorage.getItem("cart")) {
           const existingItems = fetchLocalStorageCart(products);
-          setCart({ items: existingItems, username: user.username });
+          setCart({ items: existingItems, username: user?.username });
         } else {
           localStorage.setItem("cart", JSON.stringify({}));
           setCart({ items: [], username: user.username });

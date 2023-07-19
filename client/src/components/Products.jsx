@@ -16,7 +16,7 @@ const Products = () => {
     );
   };
 
-  return <div>{products.length > 0 ? renderProducts() : null}</div>;
+  return <div>{products?.length > 0 ? renderProducts() : null}</div>;
 };
 
 export default Products;

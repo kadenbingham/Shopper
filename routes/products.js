@@ -5,7 +5,7 @@ const client = require("../db/client");
 router.get("/", async (req, res, next) => {
   try {
     const { rows } = await client.query(`
-      select name from products
+      select * from products
     `);
     res.json(rows);
   } catch (error) {

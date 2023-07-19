@@ -3,7 +3,7 @@ export const fetchLocalStorageCart = (products) => {
   const existingItems = [];
 
   for (const key in localCart) {
-    const product = products.find((element) => element.id === +key);
+    const product = products?.find((element) => element.id === +key);
     if (product) {
       existingItems.push({ ...product, qty: localCart[key] });
     }

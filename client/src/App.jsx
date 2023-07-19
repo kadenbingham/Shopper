@@ -16,9 +16,9 @@ function App() {
 
   return (
     <div style={{ textAlign: "center" }}>
-      <h3>Hello, {user.username || "Guest"}!</h3>
+      <h3>Hello, {user?.username || "Guest"}!</h3>
 
-      {user.id ? (
+      {user?.id ? (
         <button onClick={handleLogout}>Logout</button>
       ) : (
         <>
