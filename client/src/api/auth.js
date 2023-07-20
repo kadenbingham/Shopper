@@ -1,6 +1,6 @@
 export const register = async (username, password) => {
   try {
-    const response = await fetch("/api/auth/register", {
+    const response = await fetch(`/api/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -12,20 +12,19 @@ export const register = async (username, password) => {
     });
 
     if (!response.ok) {
-      throw new Error("Registration failed");
+      throw new Error("Registration failed.");
     }
 
     const data = await response.json();
     return data;
   } catch (error) {
-    console.log(error.message);
-    return null;
+    throw new Error("Registration failed.");
   }
 };
 
 export const login = async (username, password) => {
   try {
-    const response = await fetch("/api/auth/login", {
+    const response = await fetch(`/api/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -37,14 +36,13 @@ export const login = async (username, password) => {
     });
 
     if (!response.ok) {
-      throw new Error("Login failed");
+      throw new Error("Login failed.");
     }
 
     const data = await response.json();
     return data;
   } catch (error) {
-    console.log(error.message);
-    return null;
+    throw new Error("Login failed.");
   }
 };
 
@@ -53,29 +51,31 @@ export const logOut = async () => {
     const response = await fetch("/api/auth/logout");
 
     if (!response.ok) {
-      throw new Error("Logout failed");
+      throw new Error("Logout failed.");
     }
 
-    const data = await response.json();
+    const data = response.json();
     return data;
   } catch (error) {
-    console.log(error.message);
-    return null;
+    throw new Error("Logout failed.");
   }
 };
 
 export const fetchMe = async () => {
   try {
-    const response = await fetch("/api/auth/me");
+    const response = await fetch(`/api/auth/me`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
     if (!response.ok) {
-      throw new Error("Fetch failed");
+      throw new Error("Failed to fetch user data.");
     }
 
     const data = await response.json();
     return data;
   } catch (error) {
-    console.log(error.message);
-    return null;
+    throw new Error("Failed to fetch user data.");
   }
 };

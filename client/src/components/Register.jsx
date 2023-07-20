@@ -11,6 +11,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log("username", username, "password", password);
     const data = await register(username, password);
 
     if (data.name === "error") {

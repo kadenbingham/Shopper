@@ -7,7 +7,7 @@
     "seed": "node ./db/seed.js",
     "server:dev": "nodemon start.js",
     "start": "node start.js",
-    "start:dev": "(npm run dev --prefix client) & nodemon server.js",
+    "start:dev": "(npm run dev --prefix client) & nodemon start.js",
     "build": "npm install --production=false --prefix client && npm run build --prefix client"
   },
   "keywords": [],

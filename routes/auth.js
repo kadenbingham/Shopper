@@ -1,14 +1,31 @@
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const authRouter = require("express").Router();
+const { User, Order } = require("../db/models");
+const { authRequired } = require("./utils");
+const SALT_ROUNDS = 10;
 
 authRouter.post("/register", async (req, res, next) => {
   try {
-    // get the username and password from the req.body
-    // query our db to see if a user with that username exists
-    // if a user already exists, send and error
-    // if the username isn't taken
-    // create a new user in the DB
-    // use that user from the db to sign a JWT token
-    // send that token back to the user in a HTTP ONLY 🍪
+    const { username, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    const user = await User.createUser({ username, password: hashedPassword });
+    //const cart = await Order.createCartByUserId(user.id);
+
+    delete user.password;
+
+    const token = jwt.sign(user, process.env.JWT_SECRET);
+    console.log("Token from auth.js routers", token);
+
+    res.cookie("token", token, {
+      sameSite: "strict",
+      httpOnly: true,
+      signed: true,
+    });
+
+    delete user.password;
+
+    res.send({ user, message: "Registration successful!" });
   } catch (error) {
     next(error);
   }
@@ -16,19 +33,25 @@ authRouter.post("/register", async (req, res, next) => {
 
 authRouter.post("/login", async (req, res, next) => {
   try {
-    // get the username and password from the req.body
-    // query our db to see if a user with that username exists
-    // if a user exists, check that password against the DB user password
-    // if the passwords match,
-    // user user from the db to sign a JWT token
-    // send that token back to the user in a HTTP ONLY 🍪
-  } catch (error) {
-    next(error);
-  }
-});
+    const { username, password } = req.body;
+    const user = await User.getUserByUsername(username);
+    const validPassword = await bcrypt.compare(password, user.password);
 
-authRouter.get("/me", async (req, res, next) => {
-  try {
+    if (validPassword) {
+      const token = jwt.sign(user, JWT_SECRET);
+
+      res.cookie("token", token, {
+        sameSite: "strict",
+        httpOnly: true,
+        signed: true,
+      });
+
+      delete user.password;
+      console.log("User: ", user);
+      res.send({ user, message: "Login successful!" });
+    } else {
+      res.status(401).send({ message: "Invalid credentials." });
+    }
   } catch (error) {
     next(error);
   }
@@ -36,6 +59,23 @@ authRouter.get("/me", async (req, res, next) => {
 
 authRouter.get("/logout", async (req, res, next) => {
   try {
+    res.clearCookie("token", {
+      sameSite: "strict",
+      httpOnly: true,
+      signed: true,
+    });
+    res.send({
+      loggedIn: false,
+      message: "Logged Out",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+authRouter.get("/me", authRequired, async (req, res, next) => {
+  try {
+    res.send(req.user);
   } catch (error) {
     next(error);
   }
